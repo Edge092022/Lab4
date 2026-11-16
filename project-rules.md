@@ -75,7 +75,9 @@ repo-root/
 │   ├── vite.config.js # proxy /api → VITE_API_TARGET, cấu hình Vitest (jsdom)
 │   └── src/
 │       ├── main.jsx
-│       ├── App.jsx
+│       ├── App.jsx         # <Routes> + RootLayout (nav gốc)
+│       ├── NotFound.jsx    # 404 role="alert", dùng cho route * và id sai
+│       ├── navLinkClass.js # ({ isActive }) => 'active-link'
 │       ├── setupTests.js
 │       ├── data/people.js
 │       ├── people/   PeopleLayout.jsx, PersonDetail.jsx, Skeleton.jsx
