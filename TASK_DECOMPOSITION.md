@@ -48,6 +48,20 @@ Validation `author`/`text` dùng **chung luật** ở `client/src/form/validate.
 Field: `name` (bắt buộc, ≥ 2 ký tự), `email` (bắt buộc, đúng định dạng), `age` (số nguyên 18–100).
 `validateForm(values) → { [field]: message }` — hàm thuần, test được độc lập.
 
+Chốt chi tiết (task 2.1): `values = { name: string, email: string, age: string }` (giá trị thô từ input). Cả 3 field **bắt buộc**. Validate trên giá trị đã `trim()`; giá trị lưu vẫn là chuỗi gốc. Field hợp lệ **không có key** trong kết quả → hợp lệ toàn form = `{}`.
+
+| Field | Điều kiện lỗi (theo thứ tự) | Message |
+|---|---|---|
+| name | rỗng | `Vui lòng nhập họ tên.` |
+| | < 2 ký tự | `Họ tên phải có ít nhất 2 ký tự.` |
+| email | rỗng | `Vui lòng nhập email.` |
+| | không khớp `/^[^\s@]+@[^\s@]+\.[^\s@]+$/` | `Email không đúng định dạng.` |
+| age | rỗng | `Vui lòng nhập tuổi.` |
+| | không khớp `/^-?\d+$/` (vd `18.5`, `abc`) | `Tuổi phải là số nguyên.` |
+| | ngoài [18, 100] | `Tuổi phải từ 18 đến 100.` |
+
+UI: label `Họ tên` / `Email` / `Tuổi`, nút `Gửi`; inspector nằm dưới heading `Dữ liệu đã gửi`.
+
 ### 1.6 Rủi ro đã biết
 - AI sinh cú pháp Router v5 → soát theo `project-rules.md` §4.
 - AI dùng `useEffect` để validate → cấm.
