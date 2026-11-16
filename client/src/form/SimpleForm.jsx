@@ -5,10 +5,13 @@ import InputField from './InputField.jsx';
 
 const INITIAL_VALUES = { name: '', email: '', age: '' };
 
-// Một nguồn sự thật: `values`. Mọi thứ khác (errors, isValid) là DERIVED,
+// Một nguồn sự thật cho dữ liệu: `values`. errors / isValid là DERIVED,
 // tính lại đồng bộ mỗi render → 1 phím gõ = 1 setState = 1 render. Không effect nào.
+// `touched` / `submitAttempted` chỉ quyết định KHI NÀO hiện lỗi, cũng là state thường.
 export default function SimpleForm() {
   const [values, setValues] = useState(INITIAL_VALUES);
+  const [touched, setTouched] = useState({});
+  const [submitAttempted, setSubmitAttempted] = useState(false);
 
   const errors = validateForm(values);
   const isValid = Object.keys(errors).length === 0;
@@ -19,14 +22,26 @@ export default function SimpleForm() {
     setValues((prev) => ({ ...prev, [name]: value }));
   }
 
+  function handleBlur(event) {
+    const { name } = event.target;
+    // Đã touched → trả lại object cũ: React thấy state không đổi, bỏ qua render.
+    setTouched((prev) => (prev[name] ? prev : { ...prev, [name]: true }));
+  }
+
   function handleSubmit(event) {
     event.preventDefault();
-    if (!isValid) return;
+    setSubmitAttempted(true);
+    if (!isValid) {
+      // Focus là side effect do NGƯỜI DÙNG gây ra → làm ngay trong handler, không cần effect.
+      const firstInvalid = Object.keys(errors)[0];
+      event.currentTarget.elements.namedItem(firstInvalid)?.focus();
+      return;
+    }
     // Lưu dữ liệu đã gửi + hiện inspector: task 2.4.
   }
 
   return (
-    <FormContext value={{ values, errors, handleChange }}>
+    <FormContext value={{ values, errors, touched, submitAttempted, handleChange, handleBlur }}>
       {/* noValidate: tắt validation native của trình duyệt, chỉ dùng validateForm */}
       <form className="simple-form" noValidate onSubmit={handleSubmit}>
         <InputField name="name" label="Họ tên" autoComplete="name" />

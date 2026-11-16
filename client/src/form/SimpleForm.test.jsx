@@ -58,6 +58,13 @@ describe('SimpleForm', () => {
     expect(inspector()).not.toBeInTheDocument();
   });
 
+  it('submit không hợp lệ → focus vào field lỗi ĐẦU TIÊN (trong event handler, không effect)', () => {
+    render(<SimpleForm />);
+    type('Họ tên', 'Nguyễn Văn An'); // name hợp lệ → field lỗi đầu tiên là email
+    submit();
+    expect(screen.getByLabelText('Email')).toHaveFocus();
+  });
+
   it('submit hợp lệ → hiện inspector <dl class="json-inspector"> với dữ liệu đã gửi', () => {
     const { container } = render(<SimpleForm />);
     type('Họ tên', 'Nguyễn Văn An');

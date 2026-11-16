@@ -1,11 +1,14 @@
 import { useId } from 'react';
 import { useFormContext } from './FormContext.js';
 
-// Bản tối thiểu cho task 2.2 (label + controlled input qua context).
-// Hiển thị lỗi, aria-invalid/aria-describedby và touched làm ở task 2.3.
+// Không nhận value/onChange qua props — lấy từ context theo `name`.
 export default function InputField({ name, label, type = 'text', ...inputProps }) {
   const id = useId();
-  const { values, handleChange } = useFormContext();
+  const errorId = `${id}-error`;
+  const { values, errors, touched, submitAttempted, handleChange, handleBlur } = useFormContext();
+
+  // Derived: chỉ hiện lỗi khi field đã được rời khỏi (blur) hoặc đã bấm Gửi.
+  const error = touched[name] || submitAttempted ? errors[name] : undefined;
 
   return (
     <div className="field">
@@ -16,8 +19,16 @@ export default function InputField({ name, label, type = 'text', ...inputProps }
         type={type}
         value={values[name]}
         onChange={handleChange}
+        onBlur={handleBlur}
+        aria-invalid={Boolean(error)}
+        aria-describedby={error ? errorId : undefined}
         {...inputProps}
       />
+      {error && (
+        <p id={errorId} role="alert" className="field-error">
+          {error}
+        </p>
+      )}
     </div>
   );
 }
