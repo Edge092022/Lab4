@@ -16,6 +16,7 @@
 | 5   | 0.2            | `Khác` — lệnh tắt tiến trình quá rộng (`taskkill /IM node.exe`) | Trung bình | Người dùng phát hiện, đã đổi quy trình |
 | 6   | 3.3            | `Race condition` — test unmount không bắt được lỗi thiếu guard  | Thấp       | Đã ghi nhận, có test khác bù           |
 | 7   | 1.1–1.4        | `Khác` — liệt kê file đã exclude vào kế hoạch commit            | Thấp       | Đã sửa                                 |
+| 8   | 1.4            | `Khác` — lazy chunk không có Error Boundary                     | Trung bình | Phát hiện khi kiểm chứng, chưa sửa     |
 
 Loại lỗi: `Router v5 syntax` · `useEffect loop` · `Hallucinated API` · `Hardcoded secret` · `Mongoose callback` · `Missing a11y` · `Race condition` · `Khác`
 
@@ -153,5 +154,16 @@ Loại lỗi: `Router v5 syntax` · `useEffect loop` · `Hallucinated API` · `H
 - **Triệu chứng:** `git status` không hiện `COMMIT_PLAN.md` — file nằm trong `.git/info/exclude`, sẽ không bao giờ được commit.
 - **Phát hiện bằng:** `git check-ignore -v COMMIT_PLAN.md` → `.git/info/exclude:7`.
 - **Cách sửa:** bỏ `COMMIT_PLAN.md` khỏi danh sách file các dòng 1.x.
+
+---
+
+## Mục #8 — `React.lazy` + `<Suspense>` nhưng không có Error Boundary
+
+- **Task / Commit:** 1.4 — `perf: lazy load person detail with skeleton fallback`
+- **Prompt đã dùng:** "React.lazy(() => import('./PersonDetail')), <Suspense fallback={<Skeleton ... />}>" (theo WBS task 1.4)
+- **AI đã sinh ra:** `<Suspense>` bọc `PersonDetail` lazy, không có `ErrorBoundary`; unit test chỉ phủ trường hợp tải thành công.
+- **Triệu chứng:** khi dev server tắt đúng lúc chuyển sang `/people/2`, Console báo `Uncaught TypeError: Failed to fetch dynamically imported module: .../PersonDetail.jsx`; `#root` rỗng → toàn bộ app trắng trang.
+- **Phát hiện bằng:** kiểm chứng thủ công trên trình duyệt (đọc Console + kiểm tra `document.getElementById('root').innerHTML.length === 0`). Chi tiết: `docs/checkpoints-sprint1-2.md`.
+- **Cách sửa (đề xuất):** bọc `<Suspense>` bằng một `ErrorBoundary` hiển thị thông báo + nút thử lại; thêm test mô phỏng `import()` reject.
 
 ---
