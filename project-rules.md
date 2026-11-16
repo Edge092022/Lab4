@@ -68,16 +68,22 @@ repo-root/
 ├── project-rules.md
 ├── TASK_DECOMPOSITION.md
 ├── AI_FAILURE_AUDIT.md
-├── .env.example
+├── .env.example       # dùng chung client + server; .env thật cũng đặt ở root
+├── .gitignore
 ├── client/            # Vite + React 19
+│   ├── index.html
+│   ├── vite.config.js # proxy /api → VITE_API_TARGET, cấu hình Vitest (jsdom)
 │   └── src/
+│       ├── main.jsx
 │       ├── App.jsx
+│       ├── setupTests.js
 │       ├── data/people.js
 │       ├── people/   PeopleLayout.jsx, PersonDetail.jsx, Skeleton.jsx
 │       ├── form/     FormContext.js, SimpleForm.jsx, InputField.jsx, ShowData.jsx, validate.js
 │       └── forum/    useForumMessages.js, ForumPage.jsx
 └── server/
-    ├── server.js
+    ├── app.js        # createApp(): express + cors + routes + error middleware, KHÔNG listen (để supertest dùng)
+    ├── server.js     # entry: createApp().listen(PORT)
     ├── db.js
     └── validate.js   # cùng luật với client (parity)
 ```

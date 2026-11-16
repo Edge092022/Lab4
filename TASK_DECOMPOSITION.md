@@ -40,6 +40,8 @@ POST /api/messages/:forum
 
 Message = { id: string (uuid), author: string, text: string, timestamp: ISO string }
 ```
+> Ghi chú: `GET /api/health → 200 { status: "ok" }` chỉ là endpoint smoke test của scaffold (task 0.2), **không** thuộc contract.
+
 Validation `author`/`text` dùng **chung luật** ở `client/src/form/validate.js` và `server/validate.js` (parity).
 
 ### 1.5 Form Contract
@@ -117,11 +119,3 @@ Field: `name` (bắt buộc, ≥ 2 ký tự), `email` (bắt buộc, đúng đ�
 | Audit | 1 |
 | **Tổng** | **16** (≥ 10 ✔) |
 
-## 4. Prompt mẫu cho AI agent
-
-```
-Đọc project-rules.md và TASK_DECOMPOSITION.md ở root repo.
-Làm task <số task> theo vòng lặp Contract → Fail test → Implement → Refactor.
-Xong thì DỪNG, không commit. Báo: file đã đổi, lệnh để tôi tự kiểm tra,
-commit message đề xuất, và mọi chỗ bạn không chắc chắn.
-```
