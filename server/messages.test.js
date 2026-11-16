@@ -38,6 +38,16 @@ describe('GET /api/messages/:forum', () => {
     expect(res.body).toEqual({ error: 'Unknown forum' });
   });
 
+  it.each(['constructor', 'toString', '__proto__'])(
+    'tên trùng thuộc tính prototype (%s) → 404, không lộ/crash',
+    async (forum) => {
+      const res = await request(app).get(`/api/messages/${forum}`);
+      expect(res.status).toBe(404);
+      const post = await request(app).post(`/api/messages/${forum}`).send({ author: 'An', text: 'Hi' });
+      expect(post.status).toBe(404);
+    },
+  );
+
   it('tên kênh phân biệt hoa thường (NASA ≠ nasa)', async () => {
     expect((await request(app).get('/api/messages/NASA')).status).toBe(404);
   });
