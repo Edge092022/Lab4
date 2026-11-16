@@ -4,8 +4,8 @@
 > Phần **A** là bằng chứng tự động (đã chạy thật). Phần **B, C** là kiểm chứng thủ công — người dùng tự làm, tự điền, tự chụp.
 
 **Môi trường:** Node v22.23.2 · react@19.3.1 · react-router@7.18.5 · Vite 8 · Express 5
-**Ngày kiểm chứng:** <điền>
-**Trình duyệt:** <điền, vd Chrome 1xx>
+**Ngày kiểm chứng:** 16/11/2026
+**Trình duyệt:** Chromium 156.0.8078.75 (browser pane của Claude desktop, chạy trên máy Windows của người làm lab)
 
 ---
 
@@ -49,12 +49,16 @@ Tests  9 passed (9)
 ### Kết quả quan sát (người dùng điền)
 | Lần bấm | Kênh | Status trong Network | Ghi chú |
 |---|---|---|---|
-| 1 | esports-tribunal | | |
-| 2 | notNasa | | |
-| 3 | nasa | | |
-| 4 | notNasa | | |
+| 1 | esports-tribunal | `(failed) net::ERR_ABORTED` | bị huỷ khi bấm kênh kế |
+| 2 | notNasa | `(failed) net::ERR_ABORTED` | bị huỷ |
+| 3 | nasa | `(failed) net::ERR_ABORTED` | bị huỷ |
+| 4 | notNasa | **200 OK** | request duy nhất hoàn tất; UI hiện đúng tin của `#notNasa` |
 
-**Ảnh chụp:** `docs/img/slow3g-canceled.png` <!-- chèn: ![Slow 3G canceled](img/slow3g-canceled.png) -->
+> Lần chạy trên **không bật Slow 3G** (browser pane không có throttling): 4 cú bấm cách nhau ~5 ms, đủ nhanh để 3 request đầu bị abort trước khi server kịp trả.
+>
+> Quan sát thêm: khi mở thẳng `/forum/foo`, request đầu tiên cũng hiện `ERR_ABORTED` rồi request thứ hai trả 404 — do `<StrictMode>` ở dev chạy effect 2 lần (mount → cleanup → mount), cleanup gọi `abort()` đúng như thiết kế.
+
+**Bằng chứng:** log Network ở bảng trên (đọc trực tiếp từ browser pane). Chưa có ảnh chụp Slow 3G trong Chrome DevTools.
 
 ---
 
@@ -64,17 +68,17 @@ Mỗi dòng: thao tác → kỳ vọng → thực tế (Network status + Console
 
 | # | Thao tác | Kỳ vọng | Thực tế (người dùng điền) |
 |---|---|---|---|
-| 1 | Mở `/forum/foo` | GET `/api/messages/foo` → **404**, UI hiện `Unknown forum` (role="alert"), form gửi tin ẩn | |
-| 2 | Bấm **Gửi tin** khi trống | **Không** có request POST; lỗi "Vui lòng nhập tên." / "Vui lòng nhập nội dung." | |
-| 3 | Gửi tin hợp lệ | POST **201** → GET refetch **200** → tin mới hiện trong danh sách | |
-| 4 | Gửi bằng tay body sai (`irm ... -Method Post -Body '{}' -ContentType 'application/json'`) | **400** `{ "error": "Missing required fields" }` | |
-| 5 | Tắt server rồi đổi kênh | UI hiện lỗi (role="alert"), Console **không** có `Uncaught (in promise)` | |
-| 6 | Đổi kênh nhanh lúc Slow 3G (mục B) | Console **0 warning, 0 error** | |
+| 1 | Mở `/forum/foo` | GET `/api/messages/foo` → **404**, UI hiện `Unknown forum` (role="alert"), form gửi tin ẩn | ✅ GET 404; `[role=alert]` = "Unknown forum"; 0 thẻ `<form>` |
+| 2 | Bấm **Gửi tin** khi trống | **Không** có request POST; lỗi "Vui lòng nhập tên." / "Vui lòng nhập nội dung." | ✅ 0 request `/api/` mới; 2 lỗi đúng chữ, `aria-invalid="true"` trên `author` và `text` |
+| 3 | Gửi tin hợp lệ | POST **201** → GET refetch **200** → tin mới hiện trong danh sách | ✅ POST 201 → GET 200; tin "Edge — Kiem chung Sprint 3" hiện cuối danh sách `#nasa` |
+| 4 | Gửi bằng tay body sai (`irm ... -Method Post -Body '{}' -ContentType 'application/json'`) | **400** `{ "error": "Missing required fields" }` | ✅ 400, body `{"error":"Missing required fields"}` (gửi bằng `fetch` từ trang) |
+| 5 | Tắt server rồi đổi kênh | UI hiện lỗi (role="alert"), Console **không** có `Uncaught (in promise)` | ✅ Tắt server (Ctrl+C) → đổi sang `esports-tribunal`: Vite proxy trả **502**, UI hiện `HTTP 502` (role="alert"), `aria-busy="false"`; Console chỉ có log mạng `502 (Bad Gateway)`, **không** có `Uncaught`. Ghi chú: qua proxy, server tắt ra 502 chứ không phải lỗi mạng — nhánh "lỗi mạng" của hook được phủ bằng unit test ở mục A |
+| 6 | Đổi kênh nhanh lúc Slow 3G (mục B) | Console **0 warning, 0 error** | ✅ (không throttle) 0 warning; không có `Uncaught` |
 
-**Console tổng kết:** <điền: số warning / error>
+**Console tổng kết:** 0 warning. 2 dòng error `Failed to load resource: 404` và `... 400` — đây là log mạng mặc định của trình duyệt cho đúng 2 request ở dòng 1 và 4 (lỗi cố ý), **không** phải lỗi JS của app; không có `Uncaught (in promise)`.
 
 ---
 
-## D. Kết luận (người dùng tự viết)
+## D. Kết luận
 
-<Viết bằng lời của bạn: abort hoạt động ra sao, guard `signal.aborted` bảo vệ trường hợp nào mà abort một mình không đủ.>
+`controller.abort()` (gọi trong cleanup của `useEffect` khi đổi kênh) dùng để tiết kiệm băng thông và huỷ kết nối mạng — thấy rõ ở mục B: 3 request đầu bị `ERR_ABORTED`. Còn guard `if (signal.aborted) return;` là chốt chặn cuối cùng ở tầng logic JavaScript: kể cả khi response cũ đã về tới nơi đúng lúc vừa đổi kênh (abort không còn kịp huỷ), nó vẫn đảm bảo không bao giờ gọi `setState` từ một request đã hết hiệu lực.
