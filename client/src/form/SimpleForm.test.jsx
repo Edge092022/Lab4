@@ -74,7 +74,7 @@ describe('SimpleForm', () => {
     expect(q.getByText('age').nextElementSibling).toHaveTextContent('25');
   });
 
-  it('một phím gõ = đúng MỘT commit (không chuỗi useEffect)', () => {
+  it('một phím gõ = đúng MỘT commit (không chuỗi effect)', () => {
     let commits = 0;
     render(
       <Profiler id="form" onRender={() => { commits += 1; }}>

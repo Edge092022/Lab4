@@ -2,6 +2,7 @@ import { lazy, Suspense } from 'react';
 import { Routes, Route, NavLink, Outlet } from 'react-router';
 import PeopleLayout from './people/PeopleLayout.jsx';
 import Skeleton from './people/Skeleton.jsx';
+import SimpleForm from './form/SimpleForm.jsx';
 import NotFound from './NotFound.jsx';
 import { navLinkClass } from './navLinkClass.js';
 
@@ -42,6 +43,7 @@ export default function App() {
             }
           />
         </Route>
+        <Route path="form" element={<main><SimpleForm /></main>} />
         <Route path="*" element={<main><NotFound /></main>} />
       </Route>
     </Routes>
