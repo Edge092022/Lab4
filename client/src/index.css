@@ -176,6 +176,39 @@ main {
   cursor: pointer;
 }
 
+/* ---------- Inspector ---------- */
+.inspector {
+  margin-top: 1.5rem;
+  max-width: 28rem;
+}
+
+.inspector h2 {
+  font-size: 1rem;
+  margin: 0 0 0.5rem;
+}
+
+.json-inspector {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 0.25rem 1rem;
+  margin: 0;
+  padding: 0.75rem 1rem;
+  border: 1px solid #d0d7de;
+  border-radius: 6px;
+  background: #f6f8fa;
+  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+  font-size: 0.875rem;
+}
+
+.json-inspector dt {
+  color: #57606a;
+}
+
+.json-inspector dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
 .not-found h2 {
   margin-top: 0;
 }

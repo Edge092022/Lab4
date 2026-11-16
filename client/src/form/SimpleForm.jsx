@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { FormContext } from './FormContext.js';
 import { validateForm } from './validate.js';
 import InputField from './InputField.jsx';
+import ShowData from './ShowData.jsx';
 
 const INITIAL_VALUES = { name: '', email: '', age: '' };
 
@@ -12,6 +13,9 @@ export default function SimpleForm() {
   const [values, setValues] = useState(INITIAL_VALUES);
   const [touched, setTouched] = useState({});
   const [submitAttempted, setSubmitAttempted] = useState(false);
+  // Ảnh chụp `values` tại lúc Gửi hợp lệ. `values` không bao giờ bị mutate
+  // (luôn tạo object mới), nên lưu tham chiếu là đủ — không cần clone.
+  const [submitted, setSubmitted] = useState(null);
 
   const errors = validateForm(values);
   const isValid = Object.keys(errors).length === 0;
@@ -37,7 +41,7 @@ export default function SimpleForm() {
       event.currentTarget.elements.namedItem(firstInvalid)?.focus();
       return;
     }
-    // Lưu dữ liệu đã gửi + hiện inspector: task 2.4.
+    setSubmitted(values);
   }
 
   return (
@@ -50,6 +54,7 @@ export default function SimpleForm() {
         <InputField name="age" label="Tuổi" inputMode="numeric" />
         <button type="submit">Gửi</button>
       </form>
+      {submitted && <ShowData data={submitted} />}
     </FormContext>
   );
 }

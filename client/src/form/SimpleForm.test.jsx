@@ -81,6 +81,21 @@ describe('SimpleForm', () => {
     expect(q.getByText('age').nextElementSibling).toHaveTextContent('25');
   });
 
+  it('inspector giữ dữ liệu TẠI LÚC GỬI: gõ tiếp không đổi, Gửi lại mới cập nhật', () => {
+    const { container } = render(<SimpleForm />);
+    type('Họ tên', 'An');
+    type('Email', 'an@example.com');
+    type('Tuổi', '25');
+    submit();
+
+    const nameValue = () => within(container.querySelector('dl.json-inspector')).getByText('name').nextElementSibling;
+    type('Họ tên', 'Bình');
+    expect(nameValue()).toHaveTextContent('An');
+
+    submit();
+    expect(nameValue()).toHaveTextContent('Bình');
+  });
+
   it('một phím gõ = đúng MỘT commit (không chuỗi effect)', () => {
     let commits = 0;
     render(
