@@ -40,6 +40,12 @@ POST /api/messages/:forum
 
 Message = { id: string (uuid), author: string, text: string, timestamp: ISO string }
 ```
+Chốt chi tiết (task 3.1):
+- `author`/`text` được `trim()` trước khi kiểm tra **và** trước khi lưu. Thiếu field, không phải string, hoặc rỗng sau trim → `400 { error: "Missing required fields" }`. Quá độ dài (author > 50, text > 500) → `400 { error: <message> }`.
+- POST vào kênh lạ → `404 { error: "Unknown forum" }`. Tên kênh phân biệt hoa thường.
+- JSON body hỏng → `400 { error }`, không crash.
+- `timestamp` = `new Date().toISOString()`. `createApp({ clientOrigin, db })` nhận `db` từ `createDb()` (inject để test độc lập).
+
 > Ghi chú: `GET /api/health → 200 { status: "ok" }` chỉ là endpoint smoke test của scaffold (task 0.2), **không** thuộc contract.
 
 Validation `author`/`text` dùng **chung luật** ở `client/src/form/validate.js` và `server/validate.js` (parity).
