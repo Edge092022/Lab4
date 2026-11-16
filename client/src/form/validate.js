@@ -36,6 +36,24 @@ const RULES = {
   age: validateAge,
 };
 
+// ---------- Tin nhắn forum: CÙNG LUẬT với server/validate.js (parity — test ở parity.test.js) ----------
+export const MESSAGE_LIMITS = { author: 50, text: 500 };
+
+/**
+ * @param {{ author: string, text: string }} values
+ * @returns {Partial<Record<'author'|'text', string>>} chỉ chứa field lỗi; hợp lệ → {}
+ */
+export function validateMessage({ author = '', text = '' }) {
+  const errors = {};
+  const a = author.trim();
+  const t = text.trim();
+  if (!a) errors.author = 'Vui lòng nhập tên.';
+  else if (a.length > MESSAGE_LIMITS.author) errors.author = `Tên tối đa ${MESSAGE_LIMITS.author} ký tự.`;
+  if (!t) errors.text = 'Vui lòng nhập nội dung.';
+  else if (t.length > MESSAGE_LIMITS.text) errors.text = `Nội dung tối đa ${MESSAGE_LIMITS.text} ký tự.`;
+  return errors;
+}
+
 /**
  * @param {{ name: string, email: string, age: string }} values
  * @returns {Partial<Record<'name'|'email'|'age', string>>} chỉ chứa field lỗi; hợp lệ → {}

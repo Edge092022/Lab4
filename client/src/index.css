@@ -209,6 +209,64 @@ main {
   overflow-wrap: anywhere;
 }
 
+/* ---------- Forum ---------- */
+.forum {
+  display: grid;
+  gap: 1.5rem;
+  max-width: 40rem;
+}
+
+.forum-channels {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1rem;
+}
+
+.forum-messages h2 {
+  font-size: 1.125rem;
+  margin: 0 0 0.75rem;
+}
+
+.message-list {
+  margin: 0;
+}
+
+.message-list dt {
+  margin-top: 0.75rem;
+}
+
+.message-list dt time {
+  color: #57606a;
+  font-size: 0.8125rem;
+}
+
+.message-list dd {
+  margin: 0.125rem 0 0;
+  overflow-wrap: anywhere;
+}
+
+.field textarea {
+  font: inherit;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #8c959f;
+  border-radius: 6px;
+  resize: vertical;
+}
+
+.field textarea:focus-visible {
+  outline: 2px solid #0b57d0;
+  outline-offset: 2px;
+}
+
+.field textarea[aria-invalid='true'] {
+  border-color: #b3261e;
+}
+
+.simple-form button:disabled {
+  opacity: 0.6;
+  cursor: progress;
+}
+
 .not-found h2 {
   margin-top: 0;
 }

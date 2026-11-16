@@ -127,6 +127,44 @@ describe('useForumMessages', () => {
     expect(result.current.data).toEqual([]);
   });
 
+  it('postMessage: POST JSON đúng URL, rồi REFETCH kênh hiện tại', async () => {
+    const { result } = renderHook(() => useForumMessages('nasa'));
+    await act(async () => calls[0].resolve(okJson(NASA)));
+
+    const created = msg('n2', 'mới');
+    let postPromise;
+    act(() => {
+      postPromise = result.current.postMessage({ author: 'An', text: 'mới' });
+    });
+    expect(calls[1].url).toBe('/api/messages/nasa');
+    expect(calls[1].init.method).toBe('POST');
+    expect(calls[1].init.headers).toMatchObject({ 'Content-Type': 'application/json' });
+    expect(JSON.parse(calls[1].init.body)).toEqual({ author: 'An', text: 'mới' });
+
+    await act(async () => {
+      calls[1].resolve({ ok: true, status: 201, json: async () => created });
+      await postPromise;
+    });
+    expect(calls).toHaveLength(3); // refetch
+    expect(calls[2].url).toBe('/api/messages/nasa');
+    await act(async () => calls[2].resolve(okJson([...NASA, created])));
+    expect(result.current.data).toEqual([...NASA, created]);
+  });
+
+  it('postMessage bị 400 → promise reject với message từ server, KHÔNG refetch', async () => {
+    const { result } = renderHook(() => useForumMessages('nasa'));
+    await act(async () => calls[0].resolve(okJson(NASA)));
+
+    let postPromise;
+    act(() => {
+      postPromise = result.current.postMessage({ author: '', text: '' });
+    });
+    calls[1].resolve({ ok: false, status: 400, json: async () => ({ error: 'Missing required fields' }) });
+    await expect(postPromise).rejects.toThrow('Missing required fields');
+    expect(calls).toHaveLength(2);
+    expect(result.current.data).toEqual(NASA);
+  });
+
   it('lỗi mạng → error có nội dung, loading=false (không unhandled rejection)', async () => {
     const { result } = renderHook(() => useForumMessages('nasa'));
     await act(async () => calls[0].reject(new TypeError('Failed to fetch')));
