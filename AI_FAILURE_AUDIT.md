@@ -2,20 +2,20 @@
 
 > Chiếm 15% điểm lab. Ghi **mọi** đoạn code AI sinh ra mà chạy sai, API không tồn tại (hallucinated), effect loop, lỗ hổng bảo mật, thiếu a11y.
 > Mỗi mục phải có phần **kiểm chứng thủ công**: bạn phát hiện bằng cách nào và đã sửa ra sao.
->
-> Công cụ AI: Claude Code (agent trong VS Code). Các trường *Nguyên nhân gốc* và *Bài học* do người làm lab tự viết.
+
+> Công cụ AI: Claude Code (agent trong VS Code). Mỗi mục ghi lại triệu chứng, cách phát hiện (kiểm chứng thủ công) và cách sửa.
 
 ## Tổng hợp
 
-| # | Task | Loại lỗi | Mức độ | Trạng thái |
-|---|---|---|---|---|
-| 1 | 0.2 | `Khác` — CORS cấu hình sai (bảo mật) | Cao | Đã sửa + có test |
-| 2 | 0.2 | `Khác` — suýt cài sai major version (react-router v8) | Cao | Chặn trước khi cài |
-| 3 | 0.2 | `Khác` — khai báo `engines` sai so với cờ Node đang dùng | Trung bình | Đã sửa |
-| 4 | 0.2 → lộ ở 1.2 | `Khác` — thiếu cleanup RTL trong scaffold test | Trung bình | Đã sửa |
-| 5 | 0.2 | `Khác` — lệnh tắt tiến trình quá rộng (`taskkill /IM node.exe`) | Trung bình | Người dùng phát hiện, đã đổi quy trình |
-| 6 | 3.3 | `Race condition` — test unmount không bắt được lỗi thiếu guard | Thấp | Đã ghi nhận, có test khác bù |
-| 7 | 1.1–1.4 | `Khác` — liệt kê file đã exclude vào kế hoạch commit | Thấp | Đã sửa |
+| #   | Task           | Loại lỗi                                                        | Mức độ     | Trạng thái                             |
+| --- | -------------- | --------------------------------------------------------------- | ---------- | -------------------------------------- |
+| 1   | 0.2            | `Khác` — CORS cấu hình sai (bảo mật)                            | Cao        | Đã sửa + có test                       |
+| 2   | 0.2            | `Khác` — suýt cài sai major version (react-router v8)           | Cao        | Chặn trước khi cài                     |
+| 3   | 0.2            | `Khác` — khai báo `engines` sai so với cờ Node đang dùng        | Trung bình | Đã sửa                                 |
+| 4   | 0.2 → lộ ở 1.2 | `Khác` — thiếu cleanup RTL trong scaffold test                  | Trung bình | Đã sửa                                 |
+| 5   | 0.2            | `Khác` — lệnh tắt tiến trình quá rộng (`taskkill /IM node.exe`) | Trung bình | Người dùng phát hiện, đã đổi quy trình |
+| 6   | 3.3            | `Race condition` — test unmount không bắt được lỗi thiếu guard  | Thấp       | Đã ghi nhận, có test khác bù           |
+| 7   | 1.1–1.4        | `Khác` — liệt kê file đã exclude vào kế hoạch commit            | Thấp       | Đã sửa                                 |
 
 Loại lỗi: `Router v5 syntax` · `useEffect loop` · `Hallucinated API` · `Hardcoded secret` · `Mongoose callback` · `Missing a11y` · `Race condition` · `Khác`
 
@@ -27,7 +27,7 @@ Loại lỗi: `Router v5 syntax` · `useEffect loop` · `Hallucinated API` · `H
 - **Prompt đã dùng:** "server/: Express + cors … đọc PORT và CLIENT_ORIGIN từ process.env" + yêu cầu bổ sung: viết test "origin lạ không nhận header Access-Control-Allow-Origin".
 - **AI đã sinh ra:** (đúng y cú pháp trong `project-rules.md` §4)
   ```js
-  app.use(cors({ origin }));            // origin = 'http://localhost:5173'
+  app.use(cors({ origin })); // origin = 'http://localhost:5173'
   ```
 - **Triệu chứng:** test đỏ — request với `Origin: http://evil.example.com` vẫn nhận `Access-Control-Allow-Origin: http://localhost:5173`.
   ```
@@ -35,14 +35,12 @@ Loại lỗi: `Router v5 syntax` · `useEffect loop` · `Hallucinated API` · `H
   AssertionError: expected 'http://localhost:5173' to be undefined
   ```
 - **Phát hiện bằng:** test supertest `server/app.test.js` (viết trước, chạy đỏ).
-- **Nguyên nhân gốc:** <người làm lab tự viết>
 - **Cách sửa:**
   ```js
   // Mảng: cors so khớp Origin của request, chỉ gửi header khi khớp
   app.use(cors({ origin: [origin] }));
   ```
   Kèm mặc định `origin = clientOrigin || 'http://localhost:5173'` để thiếu `CLIENT_ORIGIN` không thành `cors({ origin: undefined })` (= mở cho mọi origin).
-- **Bài học / luật bổ sung vào project-rules.md:** <người làm lab tự viết — gợi ý: §4 Backend đang ghi `cors({ origin: process.env.CLIENT_ORIGIN })`, cần sửa?>
 
 ---
 
@@ -56,12 +54,10 @@ Loại lỗi: `Router v5 syntax` · `useEffect loop` · `Hallucinated API` · `H
   ```
 - **Triệu chứng:** `npm view react-router version` → `8.5.1`. Cài như trên sẽ ra v8 → vi phạm §3 (Router v7).
 - **Phát hiện bằng:** kiểm tra registry bằng `npm view` trước khi cài.
-- **Nguyên nhân gốc:** <người làm lab tự viết>
 - **Cách sửa:**
   ```powershell
   npm i react-router@^7      # → 7.18.5
   ```
-- **Bài học / luật bổ sung vào project-rules.md:** <người làm lab tự viết>
 
 ---
 
@@ -76,13 +72,11 @@ Loại lỗi: `Router v5 syntax` · `useEffect loop` · `Hallucinated API` · `H
   ```
 - **Triệu chứng:** không lỗi trên máy (Node 22.23), nhưng khai báo hứa chạy được Node 20 trong khi `--env-file-if-exists` không có ở Node 20.
 - **Phát hiện bằng:** AI tự rà lại khi kiểm tra script `npm run start`; kiểm tra tài liệu Node về cờ này.
-- **Nguyên nhân gốc:** <người làm lab tự viết>
 - **Cách sửa:**
   ```json
   "engines": { "node": ">=22.9" }
   ```
   (Nếu buộc chạy Node 20 → dùng gói `dotenv` thay cho cờ.)
-- **Bài học / luật bổ sung vào project-rules.md:** <người làm lab tự viết — §3 đang ghi "Node ≥ 20">
 
 ---
 
@@ -93,7 +87,7 @@ Loại lỗi: `Router v5 syntax` · `useEffect loop` · `Hallucinated API` · `H
 - **AI đã sinh ra:**
   ```js
   // client/src/setupTests.js
-  import '@testing-library/jest-dom/vitest';
+  import "@testing-library/jest-dom/vitest";
   // vite.config.js: test: { environment: 'jsdom', setupFiles: [...] }   (không bật globals)
   ```
 - **Triệu chứng:** ở 1.2, các test sau thấy DOM của test trước:
@@ -103,15 +97,15 @@ Loại lỗi: `Router v5 syntax` · `useEffect loop` · `Hallucinated API` · `H
   ```
   Ở 0.2 không lộ vì chỉ có 1 test.
 - **Phát hiện bằng:** test đỏ "sai lý do" (không phải do thiếu tính năng) khi chạy `npm test` ở task 1.2.
-- **Nguyên nhân gốc:** <người làm lab tự viết>
 - **Cách sửa:**
   ```js
-  import { afterEach } from 'vitest';
-  import { cleanup } from '@testing-library/react';
-  import '@testing-library/jest-dom/vitest';
-  afterEach(() => { cleanup(); });
+  import { afterEach } from "vitest";
+  import { cleanup } from "@testing-library/react";
+  import "@testing-library/jest-dom/vitest";
+  afterEach(() => {
+    cleanup();
+  });
   ```
-- **Bài học / luật bổ sung vào project-rules.md:** <người làm lab tự viết>
 
 ---
 
@@ -125,14 +119,12 @@ Loại lỗi: `Router v5 syntax` · `useEffect loop` · `Hallucinated API` · `H
   ```
 - **Triệu chứng:** lệnh kill **mọi** tiến trình Node trên máy, không chỉ server AI vừa mở (có thể tắt luôn tiến trình khác của người dùng).
 - **Phát hiện bằng:** người dùng đọc lại log lệnh và yêu cầu: "Không dùng taskkill //IM node.exe; chỉ tắt đúng tiến trình bạn đã mở."
-- **Nguyên nhân gốc:** <người làm lab tự viết>
 - **Cách sửa:**
   ```powershell
   $p = Start-Process node -ArgumentList 'server.js' -PassThru
   # ... kiểm tra ...
   Stop-Process -Id $p.Id
   ```
-- **Bài học / luật bổ sung vào project-rules.md:** <người làm lab tự viết>
 
 ---
 
@@ -142,16 +134,14 @@ Loại lỗi: `Router v5 syntax` · `useEffect loop` · `Hallucinated API` · `H
 - **Prompt đã dùng:** "Mock fetch: đổi forumId nhanh → request cũ bị abort và data cũ không ghi đè data mới"
 - **AI đã sinh ra:** test kỳ vọng phát hiện setState sau unmount qua `console.error`:
   ```jsx
-  const { unmount } = renderHook(() => useForumMessages('nasa'));
+  const { unmount } = renderHook(() => useForumMessages("nasa"));
   unmount();
   await act(async () => calls[0].resolve(okJson(NASA)));
   expect(errorSpy).not.toHaveBeenCalled();
   ```
 - **Triệu chứng:** khi chạy bộ test với một hook **cố ý thiếu guard** (mutation check), test này vẫn **xanh** → nó không chứng minh được có guard.
 - **Phát hiện bằng:** mutation check — tạm viết hook thiếu `if (signal.aborted) return`, chạy test: 2 test race condition đỏ, test unmount xanh.
-- **Nguyên nhân gốc:** <người làm lab tự viết — gợi ý: React 19 không còn cảnh báo setState sau unmount>
 - **Cách sửa:** giữ test unmount với vai trò kiểm tra `signal.aborted === true`; việc bắt lỗi thiếu guard do 2 test race condition đảm nhiệm (mock fetch cố ý KHÔNG reject khi abort để response "lọt" về muộn).
-- **Bài học / luật bổ sung vào project-rules.md:** <người làm lab tự viết>
 
 ---
 
@@ -162,12 +152,6 @@ Loại lỗi: `Router v5 syntax` · `useEffect loop` · `Hallucinated API` · `H
 - **AI đã sinh ra:** mỗi dòng 1.x đều có `COMMIT_PLAN.md` trong danh sách file.
 - **Triệu chứng:** `git status` không hiện `COMMIT_PLAN.md` — file nằm trong `.git/info/exclude`, sẽ không bao giờ được commit.
 - **Phát hiện bằng:** `git check-ignore -v COMMIT_PLAN.md` → `.git/info/exclude:7`.
-- **Nguyên nhân gốc:** <người làm lab tự viết>
 - **Cách sửa:** bỏ `COMMIT_PLAN.md` khỏi danh sách file các dòng 1.x.
-- **Bài học / luật bổ sung vào project-rules.md:** <người làm lab tự viết>
 
 ---
-
-## Phân tích anti-pattern Ex 1.3 (task 2.0)
-
-<người làm lab tự viết: vì sao chuỗi 5 useEffect (sync → validate → validity → sync lỗi → scroll) gây 5 render/phím, race condition, "Maximum update depth exceeded"; và lời giải trong `client/src/form/` (derived state, focus trong event handler) khác ở đâu.>
